@@ -1,10 +1,7 @@
-Adnotacje, Endpoint, Body, Własne przemyślenia
-
-
 Andotacje - Adnotacje to metadane o kodzie, która dostarczają nam takich informacji o programie,
             które nie są częścią tego programu (same w sobie).
             Adnotacje nie mają bezpośredniego wpływu na kod, który nimi oznaczamy.
-
+____________________________________________________________________________________________________________________
 Rodzaje:
 
 @Component  jest podstawowym stereotypem dla każdego z komponentów, którymi ma zarządzać Spring.
@@ -13,4 +10,17 @@ Rodzaje:
 @Service – wskazuje serwis w warstwie logiki biznesowej
 @Repository – wskazuje DAO w warstwie przechowywania danych
                 (w Spring-boot - tworzy dynamicznie klasę , która obsługuje bazę danych wykonując zapytania.)
-@Controller – wskazuje kontroler w warstwie prezentacji
+@Controller/@RestCotroller – wskazuje kontroler w warstwie prezentacji
+
+@autowired - pozwala ona na wstrzyknięcie instancji klasy w oznaczone pole
+____________________________________________________________________________________________________________________
+
+endpoint - scieżka, dzięki której serwer wie do której części kodu ma się odnieść (np: @RequestMapping("/aaa"))
+____________________________________________________________________________________________________________________
+Body:
+
+@RequestBody - Spring  stara się przekształcić treść przychodzącego żądania w obiekt,
+                np. kiedy chcemy otrzymać dane JSON i automatycznie je zamienić na obiekt.
+
+@ResponseBody - Spring stara się przekształcić zwrócone wartości w odpowiedź http
+                (np. konwertując obiekt na format JSON lub XML)
