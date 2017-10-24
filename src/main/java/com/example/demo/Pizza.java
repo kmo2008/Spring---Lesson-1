@@ -4,7 +4,7 @@ public class Pizza {
 
     private float price;
     private String name;
-    private long id;
+    private int id;
 
     @Override
     public String toString() {
@@ -15,7 +15,7 @@ public class Pizza {
                 '}';
     }
 
-    public Pizza(float price, String name, long id) {
+    public Pizza(float price, String name, int id) {
         this.price = price;
         this.name = name;
         this.id = id;
@@ -34,7 +34,7 @@ public class Pizza {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
