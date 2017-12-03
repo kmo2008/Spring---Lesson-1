@@ -73,7 +73,12 @@ public class Menu {
      * @param dish(Dish) Dish object.
      */
     public void dishAddAll(Dish dish) {
-        dishesAll.add(dish);
+        dishesEN.add(dish);
+        dishesPL.add(dish);
+        dishesAll.clear();
+        dishesAll.addAll(dishesPL);
+        dishesAll.addAll(dishesEN);
+
     }
 
     /**

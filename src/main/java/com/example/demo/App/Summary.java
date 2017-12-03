@@ -10,13 +10,13 @@ import java.util.ArrayList;
  * @author Kmo2008
  * @version 1.0
  * @since 0.1
- * Head Class on App, Control all HTTP mothotds.
+ * This class is Controll class of REST methods.
  */
 @RestController
 public class Summary {
 
     /**
-     * Wirded Menu class.
+     * This variable wired to menu.
      */
     @Autowired
     private Menu menu;
