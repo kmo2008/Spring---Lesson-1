@@ -1,4 +1,4 @@
-package com.example.demo;
+package pl.kmo2008.demo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

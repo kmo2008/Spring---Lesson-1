@@ -1,16 +1,20 @@
-package com.example.demo.Gui;
+package pl.kmo2008.demo.Gui;
 
-import com.example.demo.App.Dish;
-import com.example.demo.App.Menu;
+import pl.kmo2008.demo.App.Dish;
+import pl.kmo2008.demo.App.Menu;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.server.*;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Label;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.kmo2008.demo.Model.Categories;
+import pl.kmo2008.demo.Model.Food;
+import pl.kmo2008.demo.Repository.CategoriesRepository;
+import pl.kmo2008.demo.Repository.FoodRepository;
 
-import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -25,6 +29,15 @@ public class Show extends UI {
     @Autowired
     private Menu menu;
 
+    /**
+     * Wired Food model.
+     */
+    @Autowired
+    private FoodRepository foodRepository;
+
+    @Autowired
+    CategoriesRepository catRepo;
+
 
     /**
      * Initial Method
@@ -38,7 +51,7 @@ public class Show extends UI {
          */
         List<String> data = Arrays.asList("Mięsne", "Wegetariańskie", "Bez mięsne");
         List<String> lang = Arrays.asList("PL", "EN", "All");
-        ArrayList<Dish> dishes = menu.getDishesPL();
+        List<Food> foods = null;
 
 
         /**
@@ -61,7 +74,7 @@ public class Show extends UI {
          */
         final Window window = new Window("Nowe danie");
         RadioButtonGroup dishoption = new RadioButtonGroup("Rodzaj dania:", data);
-        Grid<Dish> grid = new Grid<>(Dish.class);
+        Grid<Food> grid = new Grid<>(Food.class);
         Button refreshbutton = new Button("Odśwież");
         Button addnew = new Button("Dodaj nowe danie");
         CheckBox glutenfree = new CheckBox("Glutenfree");
@@ -72,7 +85,6 @@ public class Show extends UI {
         /**
          * Widnwos UI objects
          */
-        TextField idfield = new TextField("Id: ");
         TextField namefield = new TextField("Nazwa: ");
         TextField pricefield = new TextField("Cena: ");
         RadioButtonGroup windowdishoption = new RadioButtonGroup("Rodzaj dania:", data);
@@ -94,10 +106,7 @@ public class Show extends UI {
         slider.setValue(1.0);
         slidercount.setValue("Ilość wyświetlanych produktów:  1");
 
-
-        grid.setItems(dishes);
         grid.setWidth("100%");
-        grid.setColumnOrder("id", "name", "price", "vegan", "glutenfree", "meat");
         /**
          * Listeners
          */
@@ -106,51 +115,76 @@ public class Show extends UI {
         });
 
         refreshbutton.addClickListener(clickEvent -> {
-
-            int meat = 0;
-            int vegan = 0;
-            int gluten = 0;
+            Food food = null;
+            boolean meat = false;
+            boolean vegan = false;
+            boolean gluten = false;
             int number = 0;
-            int language = 0;
+            String language = null;
+            grid.getDataProvider().refreshAll();
 
-
-            if (dishoption.isSelected("Mięsne")) meat = 1;
-            else if (dishoption.isSelected("Wegetariańskie")) vegan = 0;
-            if (glutenfree.getValue()) gluten = 1;
+            if (dishoption.isSelected("Mięsne")) meat = true;
+            if (dishoption.isSelected("Wegetariańskie")) vegan = true;
+            if (glutenfree.getValue()) gluten = true;
             number = slider.getValue().intValue();
-            if (combo.isSelected("PL")) language = 1;
-            else if (combo.isSelected("EN")) language = 0;
-            else language = 3;
+            if (combo.isSelected("PL")) language = "PL";
+            else if (combo.isSelected("EN")) language = "EN";
+            else language = "All";
             System.out.println(meat + " " + vegan + " " + gluten + " " + number + " " + language);
-            grid.setItems(menu.showDishesList(language, vegan, gluten, meat, number));
+            List<Food> foodlist = foodRepository.findAll();
+            List<Food> readylist = new ArrayList<>();
+            Categories catx = null;
+            Iterator<Food> foodIterator = foodlist.iterator();
+            while (foodIterator.hasNext()) {
+                food = foodIterator.next();
+                catx = catRepo.findOne(food.getCategory().getId());
+                if (meat == catx.isMeat() && vegan == catx.isVegan() && gluten == catx.isGlutenfree() && number > 0) {
+                    readylist.add(food);
+                    number--;
+                }
+            }
+            grid.setItems(readylist);
         });
 
-        addnew.addClickListener(clickEvent -> {
-            addWindow(window);
-        });
+        addnew.addClickListener(clickEvent ->
+                addWindow(window)
+        );
 
 
         /**
          * Subwindows action listener
          */
         savebutton.addClickListener(clickEvent -> {
-            int idnew = Integer.parseInt(idfield.getValue());
             String namenew = namefield.getValue();
             double pricenew = Double.parseDouble(pricefield.getValue());
-            boolean  meatnew = false;
-            boolean  vegannew = false;
+            boolean meatnew = false;
+            boolean vegannew = false;
             boolean glutennew = false;
             int langnew = 0;
             if (windowdishoption.isSelected("Mięsne")) meatnew = true;
-            else if(windowdishoption.isSelected("Wegetariańskie"))vegannew = true;
-            if(glutenbox.getValue())glutennew = true;
-            if(windowcombobox.isSelected("PL")) menu.dishAddPL(new Dish(idnew, namenew, pricenew,glutennew,vegannew,meatnew));
-            else if(windowcombobox.isSelected("EN")) menu.dishAddEN(new Dish(idnew, namenew, pricenew,glutennew,vegannew,meatnew));
-            else menu.dishAddAll(new Dish(idnew, namenew, pricenew,glutennew,vegannew,meatnew));
+            else if (windowdishoption.isSelected("Wegetariańskie")) vegannew = true;
+            if (glutenbox.getValue()) glutennew = true;
+            Food food = new Food();
+            Categories cat = new Categories();
+            if (windowcombobox.isSelected("PL")) {
+                food.setLang("PL");
+            } else if (windowcombobox.isSelected("EN")) {
+                food.setLang("EN");
+            } else {
+                food.setLang("All");
+            }
+
+            food.setName(namenew);
+            food.setPrice(pricenew);
+            cat.setMeat(meatnew);
+            cat.setGlutenfree(glutennew);
+            cat.setVegan(vegannew);
+            catRepo.save(cat);
+            food.setCategory(cat);
+            foodRepository.save(food);
             Notification.show("Dodano nowe danie.", Notification.Type.TRAY_NOTIFICATION);
             window.close();
 
-            idfield.clear();
             namefield.clear();
             pricefield.clear();
             glutenbox.clear();
@@ -187,7 +221,6 @@ public class Show extends UI {
         window.center();
         window.setSizeUndefined();
 
-        windowver.addComponent(idfield);
         windowver.addComponent(namefield);
         windowver.addComponent(pricefield);
 

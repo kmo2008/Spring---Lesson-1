@@ -1,4 +1,4 @@
-package com.example.demo.App;
+package pl.kmo2008.demo.App;
 
 /**
  * Model class for Dishes

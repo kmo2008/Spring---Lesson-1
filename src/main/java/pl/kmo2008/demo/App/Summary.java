@@ -1,4 +1,4 @@
-package com.example.demo.App;
+package pl.kmo2008.demo.App;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
